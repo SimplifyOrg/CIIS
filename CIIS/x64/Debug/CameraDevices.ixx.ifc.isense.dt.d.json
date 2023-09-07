@@ -1,0 +1,10 @@
+{
+    "Version": "1.2",
+    "Data": {
+        "Source": "d:\\workdir\\faceidsystem\\v1\\ciis\\ciis\\cameradevices.ixx",
+        "ProvidedModule": "CameraDevices",
+        "Includes": [],
+        "ImportedModules": [],
+        "ImportedHeaderUnits": []
+    }
+}

@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="BitmapPanel.h" />
+    <ClInclude Include="CameraFrame.h" />
+    <ClInclude Include="CIISApp.h" />
+    <ClInclude Include="CIISFrame.h" />
+    <ClInclude Include="EigenTrainator.h" />
+    <ClInclude Include="FisherTrainator.h" />
+    <ClInclude Include="MatToBitmap.h" />
+    <ClInclude Include="Recognizer.h" />
+    <ClInclude Include="Trainer.h" />
+    <ClInclude Include="Customer.h" />
+    <ClInclude Include="ITrainator.h" />
+    <ClInclude Include="TrainingDialog.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="BitmapPanel.cpp" />
+    <ClCompile Include="CameraDevices.ixx" />
+    <ClCompile Include="CIISApp.cpp" />
+    <ClCompile Include="CIISFrame.cpp" />
+    <ClCompile Include="EigenTrainator.cpp" />
+    <ClCompile Include="FisherTrainator.cpp" />
+    <ClCompile Include="MatToBitmap.cpp" />
+    <ClCompile Include="Recognizer.cpp" />
+    <ClCompile Include="Trainer.cpp" />
+    <ClCompile Include="TrainingDialog.cpp" />
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>16.0</VCProjectVersion>
+    <Keyword>Win32Proj</Keyword>
+    <ProjectGuid>{7d4c0913-2dba-4189-80fe-ab87cfbfb327}</ProjectGuid>
+    <RootNamespace>CIIS</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="C:\wxwidget\wxwidgets.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LibraryPath>C:\opencv\install\x64\vc17\lib;C:\opencv\install\x64\vc17\bin;C:\wxwidget\lib\vc14x_x64_dll;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\opencv\install\include;$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>opencv_world480d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+    <ProjectReference>
+      <UseLibraryDependencyInputs>true</UseLibraryDependencyInputs>
+    </ProjectReference>
+  </ItemDefinitionGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

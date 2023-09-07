@@ -1,0 +1,15 @@
+﻿  Scanning sources for module dependencies...
+  CameraDevices.ixx
+  Compiling...
+  CameraDevices.ixx
+  BitmapPanel.cpp
+  CIISApp.cpp
+  CIISFrame.cpp
+  EigenTrainator.cpp
+  FisherTrainator.cpp
+  MatToBitmap.cpp
+  Recognizer.cpp
+  Trainer.cpp
+  TrainingDialog.cpp
+  Generating Code...
+  CIIS.vcxproj -> D:\workdir\FaceIdSystem\V1\CIIS\x64\Debug\CIIS.exe
