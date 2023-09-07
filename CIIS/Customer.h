@@ -40,20 +40,52 @@ private:
 
 		}
 
-		bool isValidCustomerIdentification() {
+		static bool isValidCustomerIdentification(std::string & customerIdentity) {
 
 		}
 
-		bool isValidName() {
+		static bool isValidName(std::string & name) {
 
 		}
 
-		bool isValidAddress() {
+		static bool isValidAddress(std::vector<std::string> & addresses) {
 
 		}
 
-		bool isValidPhone() {
+		static bool isValidPhone(std::vector<std::string> & phones) {
 
+		}
+	public:
+		std::shared_ptr<Builder> setCustomerIdentification(std::string customerIdentity) {
+			this->m_customerIdentificationNumber = customerIdentity;
+			return std::make_shared<Builder>(this);
+		}
+
+		std::shared_ptr<Builder> setName(std::string name) {
+			this->m_name = name;
+			return std::make_shared<Builder>(this);
+		}
+
+		std::shared_ptr<Builder> setAddresses(std::vector<std::string> addresses) {
+			this->m_addresses = addresses;
+			return std::make_shared<Builder>(this);
+		}
+
+		std::shared_ptr<Builder> setPhoneNumbers(std::vector<std::string> phones) {
+			this->m_phones = phones;
+			return std::make_shared<Builder>(this);
+		}
+
+		std::shared_ptr<Customer> build() {
+			if (isValidName(this->m_name) == false) {
+				throw new std::exception("name should be not null, not blank and <= 100 chars long");//IllegalArgumentException("name should be not null, not blank and <= 100 chars long");
+			}
+			if (isValidCustomerIdentification(this->m_customerIdentificationNumber) == false) {
+				throw new std::exception("age should be >= 20 and <= 50");
+			}
+
+			// 3 more such validations
+			return std::make_shared<Customer>(this);
 		}
 	};
 
