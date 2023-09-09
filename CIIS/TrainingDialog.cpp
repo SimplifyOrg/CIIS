@@ -57,12 +57,14 @@ TrainingDialog::TrainingDialog(wxWindow* parent, wxWindowID id, const wxString& 
 	customerID->Add(m_IDLabel, 0, wxALL, 1);
 
 	DeleteTrainerThread();
-	std::shared_ptr<Customer> customer = std::make_shared<Customer>();
+	std::shared_ptr<Customer::Builder> builder = Customer::getBuilder();
+	std::shared_ptr<Customer> customer = builder->build();
 	m_trainerThread = new Trainer(this, customer);
 	m_trainerThread->createCustomerIdentity();
 	StartTrainerThread();
-	m_customerID.assign(m_trainerThread->getCustomer()->m_customerIdentificationNumber);
-	m_ID = new wxStaticText(this, wxID_Train_ID, m_trainerThread->getCustomer()->m_customerIdentificationNumber, wxDefaultPosition, wxDefaultSize, 0);
+	m_customerID.assign(m_trainerThread->getCustomer()->getCustomerIdentification());
+	builder->setCustomerIdentification(m_customerID);
+	m_ID = new wxStaticText(this, wxID_Train_ID, m_trainerThread->getCustomer()->getCustomerIdentification(), wxDefaultPosition, wxDefaultSize, 0);
 	//m_ID->Wrap(-1);
 	customerID->Add(m_ID, 0, wxALL, 1);
 
