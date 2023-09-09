@@ -120,7 +120,7 @@ cv::Mat Trainer::processImage(cv::Mat inImg) {
 		cv::Mat faceResized;
 		cv::resize(face, faceResized, cv::Size(resizedWidth, resizedHeight));
 
-		std::string imageDir = m_trainingPath + "/" + m_customer->m_customerIdentificationNumber;
+		std::string imageDir = m_trainingPath + "/" + m_customer->getCustomerIdentification();
 		int imgNumber = getImageNumber(imageDir);
 
 		if (m_timer % 5 == 0) {
@@ -133,7 +133,7 @@ cv::Mat Trainer::processImage(cv::Mat inImg) {
 		cv::rectangle(frame, cv::Point(x, y), cv::Point(x + w, y + h), (0, 255, 0), 3);
 
 		// Put text
-		cv::putText(frame, m_customer->m_name.empty() ? m_customer->m_customerIdentificationNumber : m_customer->m_name, cv::Point(x - 10, y - 10), cv::FONT_HERSHEY_PLAIN, 1, (0, 255, 0));
+		cv::putText(frame, m_customer->getName().empty() ? m_customer->getCustomerIdentification() : m_customer->getName(), cv::Point(x - 10, y - 10), cv::FONT_HERSHEY_PLAIN, 1, (0, 255, 0));
 	}
 
 	return frame;
@@ -205,7 +205,7 @@ void Trainer::trainRecognizer() {
 }
 
 void Trainer::createCustomerIdentity() {
-	if (m_customer->m_customerIdentificationNumber.empty() == true) {
+	if (m_customer->getCustomerIdentification().empty() == true) {
 		// Create new id number
 		int index = 0;
 		for (const auto& entry : std::filesystem::directory_iterator(m_trainingPath)) {
@@ -220,13 +220,13 @@ void Trainer::createCustomerIdentity() {
 		oss << std::put_time(&tm, "%d-%m-%Y_%H-%M-%S");
 		auto str = oss.str();
 
-		m_customer->m_customerIdentificationNumber = std::to_string(index) + "_" + str;
+		m_customer->setCustomerIdentification(std::to_string(index) + "_" + str);
 
 	}
 }
 
 std::filesystem::path Trainer::getImagePath() {
-	std::filesystem::path p = m_customer->m_customerIdentificationNumber;
+	std::filesystem::path p = m_customer->getCustomerIdentification();
 	std::filesystem::path currPath = m_trainingPath;
 	std::filesystem::path path = currPath.generic_string() + std::string("/") + p.generic_string();
 	std::filesystem::create_directories(path);

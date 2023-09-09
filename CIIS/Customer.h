@@ -66,13 +66,13 @@ private:
 			return std::make_shared<Builder>(this);
 		}
 
-		std::shared_ptr<Builder> setAddresses(std::vector<std::string> addresses) {
-			this->m_addresses = addresses;
+		std::shared_ptr<Builder> setAddress(std::string address) {
+			this->m_addresses.push_back(address);
 			return std::make_shared<Builder>(this);
 		}
 
-		std::shared_ptr<Builder> setPhoneNumbers(std::vector<std::string> phones) {
-			this->m_phones = phones;
+		std::shared_ptr<Builder> setPhoneNumber(std::string phone) {
+			this->m_phones.push_back(phone);
 			return std::make_shared<Builder>(this);
 		}
 
@@ -98,7 +98,7 @@ private:
 	}
 
 public:
-	std::shared_ptr<Builder> getBuilder() {
+	static std::shared_ptr<Builder> getBuilder() {
 
 	}
 
@@ -126,11 +126,11 @@ public:
 
 	}
 
-	void setAddresses(std::vector<std::string>) {
+	void setAddress(std::string) {
 
 	}
 
-	void setPhoneNumbers(std::vector<std::string>) {
+	void setPhoneNumbers(std::string phone) {
 
 	}
 };

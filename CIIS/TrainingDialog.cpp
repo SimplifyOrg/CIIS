@@ -6,10 +6,12 @@
 void TrainingDialog::OnTrain(wxCommandEvent& event) {
 	//wxLogMessage("Start training!");
 	// TODO: Get Customer information before training
-	std::shared_ptr<Customer> customer = std::make_shared<Customer>();
-	customer->m_customerIdentificationNumber = m_customerID;
-	customer->m_name = m_customerName->GetValue().ToStdString();
-	customer->m_phones.push_back(m_phone->GetValue().ToStdString());
+	std::shared_ptr<Customer> customer = Customer::getBuilder()
+		->setCustomerIdentification(m_customerID)
+		->setName(m_customerName->GetValue().ToStdString())
+		->setPhoneNumber(m_phone->GetValue().ToStdString())
+		->build();
+	
 	m_trainerThread = new Trainer(this, customer);
 	m_trainerThread->setTrainingFlag(true);
 	StartTrainerThread();
