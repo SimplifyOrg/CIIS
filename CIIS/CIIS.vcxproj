@@ -7,6 +7,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Address.h" />
     <ClInclude Include="BitmapPanel.h" />
     <ClInclude Include="CameraFrame.h" />
     <ClInclude Include="CIISApp.h" />
@@ -14,7 +15,9 @@
     <ClInclude Include="EigenTrainator.h" />
     <ClInclude Include="FisherTrainator.h" />
     <ClInclude Include="MatToBitmap.h" />
+    <ClInclude Include="Phone.h" />
     <ClInclude Include="Recognizer.h" />
+    <ClInclude Include="ServiceTaken.h" />
     <ClInclude Include="Trainer.h" />
     <ClInclude Include="Customer.h" />
     <ClInclude Include="ITrainator.h" />
@@ -60,8 +63,8 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <LibraryPath>C:\opencv\install\x64\vc17\lib;C:\opencv\install\x64\vc17\bin;C:\wxwidget\lib\vc14x_x64_dll;$(LibraryPath)</LibraryPath>
-    <IncludePath>C:\opencv\install\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Program Files\libpqxx\7.7_x64\bin;C:\opencv\install\x64\vc17\lib;C:\opencv\install\x64\vc17\bin;C:\wxwidget\lib\vc14x_x64_dll;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\Program Files\libpqxx\7.7_x64\include;C:\opencv\install\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>

@@ -3,6 +3,8 @@
 #include <string>
 #include <vector>
 #include <memory>
+#include "Address.h"
+#include "Phone.h"
 
 class Customer
 {
@@ -12,8 +14,8 @@ public:
 	private:
 		std::string m_customerIdentificationNumber{ "" };
 		std::string m_name{ "" };
-		std::vector<std::string> m_addresses;
-		std::vector<std::string> m_phones;
+		std::vector<Address> m_addresses;
+		std::vector<Phone> m_phones;
 
 
 	private:
@@ -46,11 +48,11 @@ public:
 			return true;
 		}
 
-		static bool isValidAddress(std::vector<std::string> & addresses) {
+		static bool isValidAddress(std::vector<Address> & addresses) {
 			return true;
 		}
 
-		static bool isValidPhone(std::vector<std::string> & phones) {
+		static bool isValidPhone(std::vector<Phone> & phones) {
 			return true;
 		}
 	public:
@@ -72,12 +74,12 @@ public:
 			return this;
 		}
 
-		Builder* setAddress(std::string address) {
+		Builder* setAddress(Address& address) {
 			this->m_addresses.push_back(address);
 			return this;
 		}
 
-		Builder* setPhoneNumber(std::string phone) {
+		Builder* setPhoneNumber(Phone& phone) {
 			this->m_phones.push_back(phone);
 			return this;
 		}
@@ -99,8 +101,8 @@ public:
 private:
 	std::string m_customerIdentificationNumber{ "" };
 	std::string m_name{ "" };
-	std::vector<std::string> m_addresses;
-	std::vector<std::string> m_phones;
+	std::vector<Address> m_addresses;
+	std::vector<Phone> m_phones;
 	std::shared_ptr<Builder> m_builder;
 
 private:
@@ -152,11 +154,11 @@ public:
 		return m_builder->m_name;
 	}
 
-	std::vector<std::string> getAddresses() {
+	std::vector<Address> getAddresses() {
 		return m_builder->m_addresses;
 	}
 
-	std::vector<std::string> getPhoneNumbers() {
+	std::vector<Phone> getPhoneNumbers() {
 		return m_builder->m_phones;
 	}
 
@@ -170,11 +172,11 @@ public:
 
 	}
 
-	void setAddress(std::string) {
+	void setAddress(Address & address) {
 
 	}
 
-	void setPhoneNumbers(std::string phone) {
+	void setPhoneNumbers(Phone & phone) {
 
 	}
 };

@@ -83,6 +83,15 @@
     <ClInclude Include="MatToBitmap.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Address.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Phone.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ServiceTaken.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Manifest Include="main.manifest">
