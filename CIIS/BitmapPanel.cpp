@@ -6,7 +6,7 @@
 #include "BitmapPanel.h"
 
 BitmapPanel::BitmapPanel(wxWindow* parent, wxWindowID id = wxID_ANY)
-    : wxScrolledCanvas(parent, id, wxDefaultPosition, wxDefaultSize, wxFULL_REPAINT_ON_RESIZE)
+    : wxScrolledCanvas(parent, id, wxDefaultPosition, wxSize(600, 480), wxFULL_REPAINT_ON_RESIZE)
 {
     m_overlayTextColour = *wxGREEN;
     m_overlayFont = GetFont();
@@ -14,10 +14,10 @@ BitmapPanel::BitmapPanel(wxWindow* parent, wxWindowID id = wxID_ANY)
     SetBackgroundColour(*wxBLACK);
     SetBackgroundStyle(wxBG_STYLE_PAINT);
 
-    //SetScrollRate(FromDIP(8), FromDIP(8));
+    SetScrollRate(FromDIP(8), FromDIP(8));
     // We need to do this to prevent drawing artefacts
     // due to the info "overlay" which does not scroll with the bitmap.
-    //EnableScrolling(false, false);
+    EnableScrolling(false, false);
 
     Bind(wxEVT_PAINT, &BitmapPanel::OnPaint, this);
 
@@ -28,13 +28,17 @@ BitmapPanel::BitmapPanel(wxWindow* parent, wxWindowID id = wxID_ANY)
 bool BitmapPanel::SetBitmap(const wxBitmap& bitmap, const long timeGet, const long timeConvert)
 {
     m_bitmap = bitmap;
+    wxBoxSizer* buttonSizer = new wxBoxSizer(wxHORIZONTAL);
 
     if (m_bitmap.IsOk())
     {
         if (m_bitmap.GetSize() != GetVirtualSize())
         {
             InvalidateBestSize();
-            SetVirtualSize(m_bitmap.GetSize());
+            //SetVirtualSize(m_bitmap.GetSize());
+            m_bitmap.Rescale(m_bitmap, GetVirtualSize());
+            //m_bitmap.SetHeight(GetVirtualSize().GetHeight());
+            //m_bitmap.SetWidth(GetVirtualSize().GetWidth());
         }
     }
     else
@@ -53,7 +57,7 @@ bool BitmapPanel::SetBitmap(const wxBitmap& bitmap, const long timeGet, const lo
 wxSize BitmapPanel::DoGetBestClientSize() const
 {
     if (!m_bitmap.IsOk())
-        return FromDIP(wxSize(64, 48)); // completely arbitrary
+        return FromDIP(wxSize(112, 92)); // completely arbitrary
 
     return m_bitmap.GetSize();
 }

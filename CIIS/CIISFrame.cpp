@@ -4,6 +4,8 @@
 #include "CameraFrame.h"
 #include "MatToBitmap.h"
 #include "TrainingDialog.h"
+#include <wx/splitter.h>
+#include <wx/dataview.h>
 
 // define a custom event type (we don't need a separate declaration here but
 // usually you would use a matching wxDECLARE_EVENT in a header)
@@ -33,16 +35,29 @@ CIISFrame::CIISFrame() : wxFrame(nullptr, wxID_ANY, "Customer Identity and Infor
 
 	m_mainPanelSizer = new wxBoxSizer(wxVERTICAL);
 	wxBoxSizer* buttonSizer = new wxBoxSizer(wxHORIZONTAL);
+	wxBoxSizer* bottomPanelSizer = new wxBoxSizer(wxHORIZONTAL);
 
 	// Add Buttons
 	wxPanel* panel = new wxPanel(this);
 	wxButton* newCustomer = new wxButton(panel, ID_New_Customer, "New Customer"/*, wxPoint(150, 100), wxSize(100, 35)*/);
 	buttonSizer->Add(newCustomer, wxSizerFlags().Proportion(0.2).Expand().Border());
-	
-	m_bitmapPanelRecognizer = new BitmapPanel(panel, ID_Recognizer_panel);
 
-	m_mainPanelSizer->Add(buttonSizer, wxSizerFlags().Expand().Border());
-	m_mainPanelSizer->Add(m_bitmapPanelRecognizer, wxSizerFlags().Proportion(1).Expand());
+	wxSplitterWindow* bottomPanelSplitter = new wxSplitterWindow(panel, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxSP_BORDER | wxSP_LIVE_UPDATE);
+	wxSplitterWindow* bottomPanelLeftSplitter = new wxSplitterWindow(bottomPanelSplitter, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxSP_BORDER | wxSP_LIVE_UPDATE);
+	
+	m_bitmapPanelRecognizer = new BitmapPanel(bottomPanelSplitter, ID_Recognizer_panel);
+
+	wxListBox* customersInShop = new wxListBox(bottomPanelLeftSplitter, wxID_Customers_In_Shop, wxDefaultPosition, wxDefaultSize, 0);
+	bottomPanelSplitter->SetMinimumPaneSize(100);
+	wxDataViewCtrl* dataViewCtrl1 = new wxDataViewCtrl(bottomPanelLeftSplitter, wxID_ANY, wxDefaultPosition, wxDefaultSize, 0);
+	bottomPanelLeftSplitter->SplitHorizontally(customersInShop, dataViewCtrl1);
+	bottomPanelSplitter->SplitVertically(bottomPanelLeftSplitter, m_bitmapPanelRecognizer, 200);
+	bottomPanelSplitter->SetMinimumPaneSize(200);
+	bottomPanelSizer->Add(bottomPanelSplitter, 1, wxEXPAND | wxALL, FromDIP(5));
+	//bottomPanelSizer->Add(customersInShop, 0, wxEXPAND | wxLEFT | wxRIGHT | wxTOP, 5);//wxSizerFlags().Proportion(0.2).Expand().Border());
+	//bottomPanelSizer->Add(m_bitmapPanelRecognizer, 0, wxEXPAND | wxALL, 5);//wxSizerFlags().Proportion(0.2).Expand().Border());
+	m_mainPanelSizer->Add(buttonSizer, 0, wxEXPAND | wxLEFT | wxRIGHT | wxTOP, FromDIP(5)); //wxSizerFlags().Expand().Border());
+	m_mainPanelSizer->Add(bottomPanelSizer, 1, wxEXPAND | wxALL, FromDIP(5)); //wxSizerFlags().Proportion(1).Expand());
 	//m_mainPanelSizer->Add(m_bitmapPanelTrainer, wxSizerFlags().Proportion(1).Expand());
 	panel->SetSizerAndFit(m_mainPanelSizer);
 

@@ -132,7 +132,6 @@ private:
 	}
 
 public:
-	friend class Builder;
 	Customer(Builder* builder) {
 		m_builder.reset(builder);
 		this->m_customerIdentificationNumber = builder->m_customerIdentificationNumber;

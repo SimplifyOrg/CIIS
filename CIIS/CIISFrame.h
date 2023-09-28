@@ -17,7 +17,8 @@ enum {
 	wxID_Train_Customer_Name_Enter,
 	wxID_Train_Customer_Phone_Number,
 	wxID_Train_Phone_Enter,
-	wxID_Train_Button
+	wxID_Train_Button,
+	wxID_Customers_In_Shop
 };
 
 class CIISFrame : public wxFrame {

@@ -32,6 +32,9 @@
     <ClCompile Include="Trainer.cpp" />
     <ClCompile Include="TrainingDialog.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <Manifest Include="main.manifest" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
