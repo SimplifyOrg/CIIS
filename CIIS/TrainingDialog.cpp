@@ -2,21 +2,38 @@
 #include "CameraFrame.h"
 #include "MatToBitmap.h"
 #include "CIISFrame.h"
+#include "CustomerDatabase.h"
+
+static std::filesystem::path GetTrainingDirectory() {
+	try {
+		std::filesystem::path p = "face_data" /*+ std::string("\\") + nameOfPerson*/;
+		std::filesystem::path currPath = std::filesystem::current_path();
+		//std::string path = currPath.generic_string() + "\\" +p.generic_string();
+		std::filesystem::path path = currPath.generic_string() + std::string("/") + p.generic_string();
+		return path;
+	}
+	catch (std::exception ex) {
+		std::cerr << "ERROR! failed to create directories for trianing." << std::endl;
+	}
+
+	return std::filesystem::path();
+}
 
 void TrainingDialog::OnTrain(wxCommandEvent& event) {
 	//wxLogMessage("Start training!");
 	// TODO: Get Customer information before training
-	std::shared_ptr<Phone> phone = Phone::getBuilder()
+	/*std::shared_ptr<Phone> phone = Phone::getBuilder()
 		->setPhoneNumber(m_phone->GetValue().ToStdString())
 		->setCountryCode("91")
-		->build();
-	std::shared_ptr<Customer> customer = Customer::getBuilder()
-		->setCustomerIdentification(m_customerID)
-		->setName(m_customerName->GetValue().ToStdString())
-		->setPhoneNumber(*phone)
-		->build();
+		->build();*/
 	
-	m_trainerThread = new Trainer(this, customer);
+	m_customer->setCustomerIdentification(m_customerID);
+	m_customer->setName(m_customerName->GetValue().ToStdString());
+	//m_customer->setPhoneNumber(*phone);
+
+	CustomerDatabase::InsertNewCustomer(m_customer);
+	
+	m_trainerThread = new Trainer(this, m_customer, GetTrainingDirectory());
 	m_trainerThread->setTrainingFlag(true);
 	StartTrainerThread();
 	
@@ -61,14 +78,17 @@ TrainingDialog::TrainingDialog(wxWindow* parent, wxWindowID id, const wxString& 
 	customerID->Add(m_IDLabel, 0, wxALL, 1);
 
 	DeleteTrainerThread();
-	std::shared_ptr<Customer::Builder> builder = Customer::getBuilder();
-	std::shared_ptr<Customer> customer = builder->build();
-	m_trainerThread = new Trainer(this, customer);
-	m_trainerThread->createCustomerIdentity();
+	std::filesystem::path path = GetTrainingDirectory();
+	
+	m_customer.reset(Customer::getBuilder()
+		->setCustomerIdentification(CustomerDatabase::CreateCustomerIdentity(path.generic_string()))
+		->setName("New Customer")
+		->build());
+	m_trainerThread = new Trainer(this, m_customer, GetTrainingDirectory());
 	StartTrainerThread();
-	m_customerID.assign(m_trainerThread->getCustomer()->getCustomerIdentification());
-	builder->setCustomerIdentification(m_customerID);
-	m_ID = new wxStaticText(this, wxID_Train_ID, m_trainerThread->getCustomer()->getCustomerIdentification(), wxDefaultPosition, wxDefaultSize, 0);
+	//m_customerID.assign(m_trainerThread->getCustomer()->getCustomerIdentification());
+	m_customerID = m_customer->getCustomerIdentification();
+	m_ID = new wxStaticText(this, wxID_Train_ID, m_customerID, wxDefaultPosition, wxDefaultSize, 0);
 	//m_ID->Wrap(-1);
 	customerID->Add(m_ID, 0, wxALL, 1);
 
@@ -82,7 +102,7 @@ TrainingDialog::TrainingDialog(wxWindow* parent, wxWindowID id, const wxString& 
 	//m_name->Wrap(-1);
 	customerName->Add(m_name, 0, wxALL, 1);
 
-	m_customerName = new wxTextCtrl(this, wxID_Train_Customer_Name_Enter, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0);
+	m_customerName = new wxTextCtrl(this, wxID_Train_Customer_Name_Enter, m_customer->getName(), wxDefaultPosition, wxDefaultSize, 0);
 	customerName->Add(m_customerName, 0, wxALL, 1);
 
 

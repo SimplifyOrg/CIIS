@@ -6,6 +6,7 @@
 #include "TrainingDialog.h"
 #include <wx/splitter.h>
 #include <wx/dataview.h>
+#include "CustomerDatabase.h"
 
 // define a custom event type (we don't need a separate declaration here but
 // usually you would use a matching wxDECLARE_EVENT in a header)
@@ -47,10 +48,10 @@ CIISFrame::CIISFrame() : wxFrame(nullptr, wxID_ANY, "Customer Identity and Infor
 	
 	m_bitmapPanelRecognizer = new BitmapPanel(bottomPanelSplitter, ID_Recognizer_panel);
 
-	wxListBox* customersInShop = new wxListBox(bottomPanelLeftSplitter, wxID_Customers_In_Shop, wxDefaultPosition, wxDefaultSize, 0);
+	m_customersInShop = new wxListBox(bottomPanelLeftSplitter, wxID_Customers_In_Shop, wxDefaultPosition, wxDefaultSize, 0, NULL, wxLB_SINGLE | wxLB_NEEDED_SB | wxLB_SORT);
 	bottomPanelSplitter->SetMinimumPaneSize(100);
 	wxDataViewCtrl* dataViewCtrl1 = new wxDataViewCtrl(bottomPanelLeftSplitter, wxID_ANY, wxDefaultPosition, wxDefaultSize, 0);
-	bottomPanelLeftSplitter->SplitHorizontally(customersInShop, dataViewCtrl1);
+	bottomPanelLeftSplitter->SplitHorizontally(m_customersInShop, dataViewCtrl1);
 	bottomPanelSplitter->SplitVertically(bottomPanelLeftSplitter, m_bitmapPanelRecognizer, 200);
 	bottomPanelSplitter->SetMinimumPaneSize(200);
 	bottomPanelSizer->Add(bottomPanelSplitter, 1, wxEXPAND | wxALL, FromDIP(5));
@@ -62,8 +63,10 @@ CIISFrame::CIISFrame() : wxFrame(nullptr, wxID_ANY, "Customer Identity and Infor
 	panel->SetSizerAndFit(m_mainPanelSizer);
 
 	OnRecognize();
+	CustomerDatabase::CheckCustomerDatabase();
 	
 	Bind(wxEVT_BUTTON, &CIISFrame::OnNewCustomer, this, ID_New_Customer);
+	Bind(wxEVT_LISTBOX, &CIISFrame::OnListBoxSelection, this, wxID_Customers_In_Shop);
 	/*EVT_CLOSE(CIISFrame::OnClose);
 	m_isShown = true;*/
 	//Bind(wxEVT_BUTTON, &CIISFrame::OnRecognize, this, ID_Recognize);
@@ -87,8 +90,18 @@ void CIISFrame::OnCameraFrameRecognition(wxThreadEvent& evt) {
 	long     timeConvert = 0;
 	wxBitmap bitmap = MatToBitmap::ConvertMatToBitmap(frame->matBitmap, timeConvert);
 
-	if (bitmap.IsOk())
+	if (bitmap.IsOk()) {
+		std::vector<wxString> vec;
+		for (wxString customer : frame->customers) {
+			if (wxNOT_FOUND == m_customersInShop->FindString(customer)) {
+				vec.push_back(customer);
+			}
+		}
+		if (vec.size() > 0) {
+			m_customersInShop->Append(vec);
+		}		
 		m_bitmapPanelRecognizer->SetBitmap(bitmap, frame->timeGet, timeConvert);
+	}
 	else
 		m_bitmapPanelRecognizer->SetBitmap(wxBitmap(), 0, 0);
 
@@ -136,6 +149,11 @@ void CIISFrame::OnNewCustomer(wxCommandEvent& event) {
 	frame->ShowModal();
 	StartRecognizerThread();
 	//std::cout << ret << std::endl;
+}
+
+void CIISFrame::OnListBoxSelection(wxCommandEvent& event)
+{
+
 }
 
 void CIISFrame::OnClose(wxCloseEvent& event) {

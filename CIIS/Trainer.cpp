@@ -17,7 +17,8 @@ wxDEFINE_EVENT(wxEVT_CAMERA_TRAIN, wxThreadEvent);
 
 void Trainer::captureTrainingImages() {
 	
-	createCustomerIdentity();
+	//createCustomerIdentity();
+	m_customer->getCustomerIdentification();
 	std::filesystem::path path = getImagePath();
 	// TODO: capture video from selcted camera
 	cv::VideoCapture capture(0, cv::CAP_MSMF);
@@ -204,27 +205,6 @@ void Trainer::trainRecognizer() {
 	}
 }
 
-void Trainer::createCustomerIdentity() {
-	if (m_customer->getCustomerIdentification().empty() == true) {
-		// Create new id number
-		int index = 0;
-		for (const auto& entry : std::filesystem::directory_iterator(m_trainingPath)) {
-			if (entry.is_directory()) {
-				++index;
-			}
-		}
-		auto t = std::time(nullptr);
-		auto tm = *std::localtime(&t);
-
-		std::ostringstream oss;
-		oss << std::put_time(&tm, "%d-%m-%Y_%H-%M-%S");
-		auto str = oss.str();
-
-		m_customer->setCustomerIdentification(std::to_string(index) + "_" + str);
-
-	}
-}
-
 std::filesystem::path Trainer::getImagePath() {
 	std::filesystem::path p = m_customer->getCustomerIdentification();
 	std::filesystem::path currPath = m_trainingPath;
@@ -242,7 +222,7 @@ void Trainer::train() {
 	wxPostEvent(this, eventCustom);*/
 }
 
-Trainer::Trainer(wxEvtHandler* eventSink, std::shared_ptr<Customer> customer) {
+Trainer::Trainer(wxEvtHandler* eventSink, std::shared_ptr<Customer> customer, std::filesystem::path trainingDirectory) {
 	trainerModel.reset(new EigenTrainator());
 	/*wxASSERT(eventSink);
 	wxASSERT(!nameOfPerson.empty());*/
@@ -252,17 +232,8 @@ Trainer::Trainer(wxEvtHandler* eventSink, std::shared_ptr<Customer> customer) {
 	//Bind(EVT_MY_CUSTOM_COMMAND, &Trainer::OnProcessCustom, this, ID_Train_Event);
 	//trainerModel = std::make_shared<FisherTrainator>(new FisherTrainator());
 	// Add face directory
-	try {
-		std::filesystem::path p = "face_data" /*+ std::string("\\") + nameOfPerson*/;
-		std::filesystem::path currPath = std::filesystem::current_path();
-		//std::string path = currPath.generic_string() + "\\" +p.generic_string();
-		std::filesystem::path path = currPath.generic_string() + std::string("/") + p.generic_string();
-		std::filesystem::create_directories(path);
-		m_trainingPath = std::move(path.generic_string());
-	}
-	catch (std::exception ex) {
-		std::cerr << "ERROR! failed to create directories for trianing." << std::endl;
-	}
+	std::filesystem::create_directories(trainingDirectory);
+	m_trainingPath = std::move(trainingDirectory.generic_string());
 	m_captureCount = 0;
 	m_timer = 0;
 }

@@ -1,5 +1,6 @@
 #pragma once
 #include "ITrainator.h"
+#include "Customer.h"
 #include <opencv2/core/mat.hpp>
 #include "wx/wx.h"
 #include <string>
@@ -31,7 +32,7 @@ private:
 private:
 	void loadTrainedData();
 	void showVideo();
-	std::pair<cv::Mat, std::set<std::string>> processImage(const cv::Mat& inImg);
+	std::pair<cv::Mat, std::set<wxString>> processImage(const cv::Mat& inImg);
 
 };
 

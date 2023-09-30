@@ -48,11 +48,11 @@ public:
 			return true;
 		}
 
-		static bool isValidAddress(std::vector<Address> & addresses) {
+		static bool isValidAddress(Address & addresses) {
 			return true;
 		}
 
-		static bool isValidPhone(std::vector<Phone> & phones) {
+		static bool isValidPhone(Phone & phones) {
 			return true;
 		}
 	public:
@@ -60,8 +60,15 @@ public:
 
 		}
 
-		Builder(const Builder& other) {
+		~Builder() {
 
+		}
+
+		Builder(const Builder& other) {
+			this->m_customerIdentificationNumber = other.m_customerIdentificationNumber;
+			this->m_name = other.m_name;
+			this->m_addresses = other.m_addresses;
+			this->m_phones = other.m_phones;
 		}
 
 		Builder* setCustomerIdentification(std::string customerIdentity) {
@@ -84,7 +91,7 @@ public:
 			return this;
 		}
 
-		std::shared_ptr<Customer> build() {
+		Customer * build() {
 			if (isValidName(this->m_name) == false) {
 				throw new std::exception("name should be not null, not blank and <= 100 chars long");//IllegalArgumentException("name should be not null, not blank and <= 100 chars long");
 			}
@@ -93,7 +100,7 @@ public:
 			}
 
 			// 3 more such validations
-			return std::make_shared<Customer>(this);
+			return new Customer(this);
 		}
 	};
 
@@ -111,12 +118,13 @@ private:
 
 	}
 
-	Customer(Customer&&) noexcept{
-
-	}
-
-	Customer(const Customer&) {
-
+public:
+	Customer(Customer::Builder* builder) {
+		m_builder = std::make_shared<Customer::Builder>(*builder);
+		this->m_customerIdentificationNumber = builder->m_customerIdentificationNumber;
+		this->m_name = builder->m_name;
+		this->m_addresses = builder->m_addresses;
+		this->m_phones = builder->m_phones;
 	}
 
 	Customer& operator=(const Customer& other) // copy assignment
@@ -130,16 +138,23 @@ private:
 	Customer& operator=(Customer&& other) noexcept // move assignment
 	{
 		//std::swap(cstring, other.cstring);
+		std::swap(this->m_customerIdentificationNumber, other.m_customerIdentificationNumber);
+		std::swap(this->m_name, other.m_name);
 		return *this;
 	}
 
-public:
-	Customer(Builder* builder) {
-		m_builder.reset(builder);
-		this->m_customerIdentificationNumber = builder->m_customerIdentificationNumber;
-		this->m_name = builder->m_name;
-		this->m_addresses = builder->m_addresses;
-		this->m_phones = builder->m_phones;
+	Customer(Customer&& other) noexcept {
+		std::swap(this->m_customerIdentificationNumber, other.m_customerIdentificationNumber);
+		std::swap(this->m_name, other.m_name);
+	}
+
+	Customer(const Customer& other) {
+		this->m_customerIdentificationNumber = other.m_customerIdentificationNumber;
+		this->m_name = other.m_name;
+	}
+
+	~Customer() {
+
 	}
 
 	static std::shared_ptr<Builder> getBuilder() {
@@ -147,37 +162,47 @@ public:
 	}
 
 	std::string getCustomerIdentification() {
-		return m_builder->m_customerIdentificationNumber;
+		return m_customerIdentificationNumber;
 	}
 
 	std::string getName() {
-		return m_builder->m_name;
+		return m_name;
 	}
 
 	std::vector<Address> getAddresses() {
-		return m_builder->m_addresses;
+		return m_addresses;
 	}
 
 	std::vector<Phone> getPhoneNumbers() {
-		return m_builder->m_phones;
+		return m_phones;
 	}
 
 	void setCustomerIdentification(std::string customerIdentity) {
 		if (Builder::isValidCustomerIdentification(customerIdentity) == true) {
 			m_builder->m_customerIdentificationNumber = customerIdentity;
+			m_customerIdentificationNumber = customerIdentity;
 		}
 	}
 
-	void setName(std::string) {
-
+	void setName(std::string name) {
+		if (Builder::isValidName(name) == true) {
+			m_builder->m_name = name;
+			m_name = name;
+		}
 	}
 
 	void setAddress(Address & address) {
-
+		if (Builder::isValidAddress(address) == true) {
+			m_builder->m_addresses.push_back(address);
+			m_addresses.push_back(address);
+		}
 	}
 
-	void setPhoneNumbers(Phone & phone) {
-
+	void setPhoneNumber(Phone & phone) {
+		if (Builder::isValidPhone(phone) == true) {
+			m_builder->m_phones.push_back(phone);
+			m_phones.push_back(phone);
+		}
 	}
 };
 

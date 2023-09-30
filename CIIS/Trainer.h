@@ -19,7 +19,7 @@ public:
 
 	void setTrainingFlag(bool flag) { m_startTraining = flag; }
 
-	Trainer(wxEvtHandler* eventSink, std::shared_ptr<Customer> customer);
+	Trainer(wxEvtHandler* eventSink, std::shared_ptr<Customer> customer, std::filesystem::path trainingDirectory);
 
 	// Don't Allow default constructor
 	Trainer() = delete;

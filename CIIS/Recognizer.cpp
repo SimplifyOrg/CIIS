@@ -8,6 +8,7 @@
 #include "FisherTrainator.h"
 #include "EigenTrainator.h"
 #include "CameraFrame.h"
+#include "CustomerDatabase.h"
 
 // A frame was retrieved from WebCam or IP Camera.
 wxDEFINE_EVENT(wxEVT_CAMERA_RECOGNIZE, wxThreadEvent);
@@ -56,13 +57,13 @@ void Recognizer::showVideo() {
     while (!TestDestroy()) {
         video_capture.read(frame);
         cv::Mat inImg = frame.clone();
-        std::pair<cv::Mat, std::set<std::string>> resp = processImage(inImg);
+        std::pair<cv::Mat, std::set<wxString>> resp = processImage(inImg);
         CameraFrame* camFrame = new CameraFrame;
         wxStopWatch  stopWatch;
         stopWatch.Start();
         camFrame->timeGet = stopWatch.Time();
         camFrame->matBitmap = resp.first;
-        
+        camFrame->customers = resp.second;
 
         // TODO: Check if the frame is destroyed
         // Do not add event if frame is dead
@@ -91,7 +92,7 @@ void Recognizer::showVideo() {
     }
 }
 
-std::pair<cv::Mat, std::set<std::string>> Recognizer::processImage(const cv::Mat& inImg) {
+std::pair<cv::Mat, std::set<wxString>> Recognizer::processImage(const cv::Mat& inImg) {
     cv::Mat frame;
     cv::flip(inImg, frame, 1);
     int resized_width = 112;
@@ -109,9 +110,7 @@ std::pair<cv::Mat, std::set<std::string>> Recognizer::processImage(const cv::Mat
     std::vector<cv::Rect> faces;
     // Use a cascade classifier to detect faces in gray_resized
     m_cascade->detectMultiScale(gray_resized, faces, 1.1, 5, cv::CASCADE_SCALE_IMAGE, cv::Size(30, 30));
-
-    std::set<std::string> persons;
-
+    std::set<wxString> persons;
     for (size_t i = 0; i < faces.size(); ++i) {
         cv::Rect face_i = faces[i];
         int x = static_cast<int>(face_i.x * 4);
@@ -128,16 +127,18 @@ std::pair<cv::Mat, std::set<std::string>> Recognizer::processImage(const cv::Mat
 
         if (confidence < 3500) {
             std::string person = m_names[label];
+            std::shared_ptr<Customer> customer = std::make_shared<Customer>(*(CustomerDatabase::GetCustomerWithID(person)));
+            
+            persons.insert(customer->getName());
             cv::rectangle(frame, cv::Point(x, y), cv::Point(x + w, y + h), cv::Scalar(255, 0, 0), 3);
-            cv::putText(frame, person + " - " + std::to_string(static_cast<int>(confidence)),
+            cv::putText(frame, customer->getName(),
                 cv::Point(x - 10, y - 10), cv::FONT_HERSHEY_PLAIN, 1, cv::Scalar(0, 255, 0));
-            persons.insert(person);
         }
         else {
             std::string person = "Unknown";
             cv::rectangle(frame, cv::Point(x, y), cv::Point(x + w, y + h), cv::Scalar(0, 0, 255), 3);
             cv::putText(frame, person, cv::Point(x - 10, y - 10), cv::FONT_HERSHEY_PLAIN, 1, cv::Scalar(0, 255, 0));
-            persons.insert(person);
+            //persons.insert(person);
         }
     }
 

@@ -36,6 +36,7 @@ private:
 
 	void OnRecognize();
 	void OnNewCustomer(wxCommandEvent& event);
+	void OnListBoxSelection(wxCommandEvent& event);
 	void OnClose(wxCloseEvent& event);
 	void OnExit(wxCommandEvent& event);
 	void OnAbout(wxCommandEvent& event);
@@ -46,6 +47,7 @@ private:
 	BitmapPanel* m_bitmapPanelRecognizer{nullptr};
 	wxBoxSizer* m_mainPanelSizer{ nullptr };
 	Recognizer* m_recognizerThread{ nullptr };
+	wxListBox* m_customersInShop{ nullptr };
 
 	//wxDECLARE_EVENT_TABLE();
 };

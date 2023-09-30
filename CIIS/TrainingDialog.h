@@ -31,5 +31,6 @@ private:
     wxButton* m_trainingButton;
 
     std::string m_customerID;
+    std::shared_ptr<Customer> m_customer;
 };
 
