@@ -47,13 +47,12 @@ CIISFrame::CIISFrame() : wxFrame(nullptr, wxID_ANY, "Customer Identity and Infor
 	wxSplitterWindow* bottomPanelLeftSplitter = new wxSplitterWindow(bottomPanelSplitter, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxSP_BORDER | wxSP_LIVE_UPDATE);
 	
 	m_bitmapPanelRecognizer = new BitmapPanel(bottomPanelSplitter, ID_Recognizer_panel);
-
+	bottomPanelLeftSplitter->SetMinimumPaneSize(200);
 	m_customersInShop = new wxListBox(bottomPanelLeftSplitter, wxID_Customers_In_Shop, wxDefaultPosition, wxDefaultSize, 0, NULL, wxLB_SINGLE | wxLB_NEEDED_SB | wxLB_SORT);
-	bottomPanelSplitter->SetMinimumPaneSize(100);
+	bottomPanelSplitter->SetMinimumPaneSize(200);
 	wxDataViewCtrl* dataViewCtrl1 = new wxDataViewCtrl(bottomPanelLeftSplitter, wxID_ANY, wxDefaultPosition, wxDefaultSize, 0);
 	bottomPanelLeftSplitter->SplitHorizontally(m_customersInShop, dataViewCtrl1);
 	bottomPanelSplitter->SplitVertically(bottomPanelLeftSplitter, m_bitmapPanelRecognizer, 200);
-	bottomPanelSplitter->SetMinimumPaneSize(200);
 	bottomPanelSizer->Add(bottomPanelSplitter, 1, wxEXPAND | wxALL, FromDIP(5));
 	//bottomPanelSizer->Add(customersInShop, 0, wxEXPAND | wxLEFT | wxRIGHT | wxTOP, 5);//wxSizerFlags().Proportion(0.2).Expand().Border());
 	//bottomPanelSizer->Add(m_bitmapPanelRecognizer, 0, wxEXPAND | wxALL, 5);//wxSizerFlags().Proportion(0.2).Expand().Border());
@@ -98,7 +97,7 @@ void CIISFrame::OnCameraFrameRecognition(wxThreadEvent& evt) {
 			}
 		}
 		if (vec.size() > 0) {
-			m_customersInShop->Append(vec);
+			m_customersInShop->EnsureVisible(m_customersInShop->Append(vec));
 		}		
 		m_bitmapPanelRecognizer->SetBitmap(bitmap, frame->timeGet, timeConvert);
 	}
