@@ -15,7 +15,7 @@ wxDEFINE_EVENT(wxEVT_CAMERA_RECOGNIZE, wxThreadEvent);
 
 void Recognizer::recognize() {
     loadTrainedData();
-    std::cout << "Press any key to quit" << std::endl;
+    //std::cout << "Press any key to quit" << std::endl;
     showVideo();
 }
 

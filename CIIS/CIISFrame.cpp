@@ -29,7 +29,7 @@ CIISFrame::CIISFrame() : wxFrame(nullptr, wxID_ANY, "Customer Identity and Infor
 	SetMenuBar(menuBar);
 
 	CreateStatusBar();
-	SetStatusText("Welcome to Customer Identity and Information System!");
+	SetStatusText("Initializing...");
 
 	Bind(wxEVT_MENU, &CIISFrame::OnAbout, this, wxID_ABOUT);
 	Bind(wxEVT_MENU, &CIISFrame::OnExit, this, wxID_EXIT);
@@ -85,6 +85,12 @@ void CIISFrame::OnCameraFrameRecognition(wxThreadEvent& evt) {
 		delete frame;
 		return;
 	}*/
+
+	static bool first = true;
+	if (first) {
+		SetStatusText("Ready");
+		first = false;
+	}
 
 	long     timeConvert = 0;
 	wxBitmap bitmap = MatToBitmap::ConvertMatToBitmap(frame->matBitmap, timeConvert);

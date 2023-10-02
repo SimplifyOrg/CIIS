@@ -10,10 +10,6 @@ class CustomerDatabase {
 public:
 	static Customer* GetCustomerWithID(const std::string& id) {
 		if (customerMap.find(id) != customerMap.end()) {
-			/*Customer* cus = Customer::getBuilder()
-				->setCustomerIdentification(customerMap[id].getCustomerIdentification())
-				->setName(customerMap[id].getName())
-				->build();*/
 			return customerMap[id].get();
 		}
 		std::unique_ptr<PostgresDatabase> pDB = std::make_unique<PostgresDatabase>();

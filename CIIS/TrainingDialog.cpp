@@ -3,6 +3,7 @@
 #include "MatToBitmap.h"
 #include "CIISFrame.h"
 #include "CustomerDatabase.h"
+#include "PhoneDatabase.h"
 
 static std::filesystem::path GetTrainingDirectory() {
 	try {
@@ -22,16 +23,17 @@ static std::filesystem::path GetTrainingDirectory() {
 void TrainingDialog::OnTrain(wxCommandEvent& event) {
 	//wxLogMessage("Start training!");
 	// TODO: Get Customer information before training
-	/*std::shared_ptr<Phone> phone = Phone::getBuilder()
+	std::shared_ptr<Phone> phone = Phone::getBuilder()
 		->setPhoneNumber(m_phone->GetValue().ToStdString())
 		->setCountryCode("91")
-		->build();*/
+		->build();
 	
 	m_customer->setCustomerIdentification(m_customerID);
 	m_customer->setName(m_customerName->GetValue().ToStdString());
-	//m_customer->setPhoneNumber(*phone);
+	m_customer->setPhoneNumber(*phone);
 
 	CustomerDatabase::InsertNewCustomer(m_customer);
+	PhoneDatabase::InsertNewPhone(phone);
 	
 	m_trainerThread = new Trainer(this, m_customer, GetTrainingDirectory());
 	m_trainerThread->setTrainingFlag(true);

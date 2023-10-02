@@ -19,6 +19,7 @@
     <ClInclude Include="IDatabase.h" />
     <ClInclude Include="MatToBitmap.h" />
     <ClInclude Include="Phone.h" />
+    <ClInclude Include="PhoneDatabase.h" />
     <ClInclude Include="PostgresDatabase.h" />
     <ClInclude Include="Recognizer.h" />
     <ClInclude Include="ServiceTaken.h" />
