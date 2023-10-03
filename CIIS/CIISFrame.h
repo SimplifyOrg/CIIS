@@ -37,6 +37,7 @@ private:
 	void OnRecognize();
 	void OnNewCustomer(wxCommandEvent& event);
 	void OnListBoxSelection(wxCommandEvent& event);
+	void OnListBoxDoubleClick(wxCommandEvent& event);
 	void OnClose(wxCloseEvent& event);
 	void OnExit(wxCommandEvent& event);
 	void OnAbout(wxCommandEvent& event);

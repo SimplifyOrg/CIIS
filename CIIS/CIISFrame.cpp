@@ -66,6 +66,7 @@ CIISFrame::CIISFrame() : wxFrame(nullptr, wxID_ANY, "Customer Identity and Infor
 	
 	Bind(wxEVT_BUTTON, &CIISFrame::OnNewCustomer, this, ID_New_Customer);
 	Bind(wxEVT_LISTBOX, &CIISFrame::OnListBoxSelection, this, wxID_Customers_In_Shop);
+	Bind(wxEVT_LISTBOX_DCLICK, &CIISFrame::OnListBoxDoubleClick, this, wxID_Customers_In_Shop);
 	/*EVT_CLOSE(CIISFrame::OnClose);
 	m_isShown = true;*/
 	//Bind(wxEVT_BUTTON, &CIISFrame::OnRecognize, this, ID_Recognize);
@@ -104,7 +105,7 @@ void CIISFrame::OnCameraFrameRecognition(wxThreadEvent& evt) {
 		}
 		if (vec.size() > 0) {
 			m_customersInShop->EnsureVisible(m_customersInShop->Append(vec));
-		}		
+		}
 		m_bitmapPanelRecognizer->SetBitmap(bitmap, frame->timeGet, timeConvert);
 	}
 	else
@@ -156,9 +157,17 @@ void CIISFrame::OnNewCustomer(wxCommandEvent& event) {
 	//std::cout << ret << std::endl;
 }
 
-void CIISFrame::OnListBoxSelection(wxCommandEvent& event)
-{
+void CIISFrame::OnListBoxSelection(wxCommandEvent& event) {
+	
+}
 
+void CIISFrame::OnListBoxDoubleClick(wxCommandEvent& event) {
+	wxArrayInt selections;
+	m_customersInShop->GetSelections(selections);
+
+	for (auto selection : selections) {
+		m_customersInShop->Delete(selection);
+	}
 }
 
 void CIISFrame::OnClose(wxCloseEvent& event) {

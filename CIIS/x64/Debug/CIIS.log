@@ -1,4 +1,6 @@
-﻿  CIISFrame.cpp
-  Recognizer.cpp
+﻿  CIISApp.cpp
+  CIISFrame.cpp
+  Trainer.cpp
+  TrainingDialog.cpp
   Generating Code...
   CIIS.vcxproj -> D:\workdir\FaceIdSystem\V1\CIIS\x64\Debug\CIIS.exe
