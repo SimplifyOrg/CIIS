@@ -2,6 +2,7 @@
 #include "ITrainator.h"
 #include "Customer.h"
 #include <opencv2/core/mat.hpp>
+#include <opencv2/videoio.hpp>
 #include "wx/wx.h"
 #include <string>
 #include <map>
@@ -14,7 +15,7 @@ public:
 
 	void recognize();
 
-	Recognizer(wxEvtHandler* eventSink, std::string trainingDir);
+	Recognizer(wxEvtHandler* eventSink, cv::VideoCapture* videoCapture, std::string trainingDir);
 
 	// Don't Allow default constructor
 	Recognizer() = delete;
@@ -28,11 +29,11 @@ private:
 	std::map<int, std::string> m_names;
 	std::string m_trainingDirectory;
 	cv::Ptr<cv::CascadeClassifier> m_cascade;
+	cv::VideoCapture* m_videoCapture;
 
 private:
 	void loadTrainedData();
 	void showVideo();
-	std::pair<cv::Mat, std::set<wxString>> processImage(const cv::Mat& inImg);
-
+	std::pair<cv::Mat, std::map<wxString, Customer*>> processImage(const cv::Mat& inImg);
 };
 

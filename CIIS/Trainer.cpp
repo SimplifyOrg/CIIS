@@ -18,21 +18,42 @@ wxDEFINE_EVENT(wxEVT_CAMERA_TRAIN, wxThreadEvent);
 void Trainer::captureTrainingImages() {
 	
 	//createCustomerIdentity();
+	if (m_videoCapture == nullptr || false == m_videoCapture->isOpened()) {
+		std::cerr << "Error opening video capture." << std::endl;
+		return;
+	}
 	m_customer->getCustomerIdentification();
 	std::filesystem::path path = getImagePath();
 	// TODO: capture video from selcted camera
-	cv::VideoCapture capture(0, cv::CAP_MSMF);
+	//cv::VideoCapture capture(0, cv::CAP_MSMF);
 	/*double fps = capture.get(cv::CAP_PROP_FPS);
 	wxLogMessage("FPS: %f", fps);*/
 	//SetStatusText("%d", fps);
+	
 	cv::Mat frame;
 	std::cout << "Press any key to terminate" << std::endl;
+	wxStopWatch  stopWatch;
+	stopWatch.Start();
 	while (!TestDestroy()) {
 		if (areEnoughFaces(path) == true) {
+			CameraFrame* camFrame = new CameraFrame;
+			camFrame->timeGet = stopWatch.Time();
+			wxBitmap bitmap;
+			bitmap.LoadFile(_T("done.jpg"), wxBITMAP_TYPE_JPEG);
+			camFrame->bitmap = bitmap;
+			camFrame->isBitmap = true;
+			wxThreadEvent* evt = new wxThreadEvent(wxEVT_CAMERA_TRAIN);
+			evt->SetPayload(camFrame);
+			try {
+				m_eventSink->QueueEvent(evt);
+			}
+			catch (std::exception ex) {
+				std::cerr << "ERROR! Frame is dead\n";
+			}
 			break;
 		}
 		++m_timer;
-		capture.read(frame);
+		m_videoCapture->read(frame);
 		if (frame.empty() == true) {
 			// blank frame
 			std::cerr << "ERROR! blank frame grabbed\n";
@@ -40,8 +61,6 @@ void Trainer::captureTrainingImages() {
 		}
 		cv::Mat outImg = processImage(frame);
 		CameraFrame* camFrame = new CameraFrame;
-		wxStopWatch  stopWatch;
-		stopWatch.Start();
 		camFrame->timeGet = stopWatch.Time();
 		camFrame->matBitmap = outImg;
 		wxThreadEvent* evt = new wxThreadEvent(wxEVT_CAMERA_TRAIN);
@@ -222,13 +241,14 @@ void Trainer::train() {
 	wxPostEvent(this, eventCustom);*/
 }
 
-Trainer::Trainer(wxEvtHandler* eventSink, std::shared_ptr<Customer> customer, std::filesystem::path trainingDirectory) {
-	trainerModel.reset(new EigenTrainator());
+Trainer::Trainer(wxEvtHandler* eventSink, cv::VideoCapture* videoCapture, std::shared_ptr<Customer> customer, std::filesystem::path trainingDirectory) {
+	trainerModel.reset(new FisherTrainator());
 	/*wxASSERT(eventSink);
 	wxASSERT(!nameOfPerson.empty());*/
 	m_eventSink = eventSink;
 	m_customer = customer;
 	m_cascade = trainerModel->getCascadeClassifier();
+	m_videoCapture = videoCapture;
 	//Bind(EVT_MY_CUSTOM_COMMAND, &Trainer::OnProcessCustom, this, ID_Train_Event);
 	//trainerModel = std::make_shared<FisherTrainator>(new FisherTrainator());
 	// Add face directory
@@ -240,12 +260,18 @@ Trainer::Trainer(wxEvtHandler* eventSink, std::shared_ptr<Customer> customer, st
 
 wxThread::ExitCode Trainer::Entry() {
 	//train();
-	if (m_startTraining == true) {
-		train();
+	try {
+		if (m_startTraining == true) {
+			train();
+		}
+		else {
+			captureTrainingImages();
+		}
 	}
-	else {
-		captureTrainingImages();
+	catch (std::exception& ex) {
+		wxLogError("ERROR: %s", ex.what());
 	}
+	
 	
 	return wxThread::ExitCode();
 }

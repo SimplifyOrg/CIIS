@@ -27,6 +27,9 @@ public:
 		}
 
 		static bool isValidPhoneNumber(std::string& phoneNumber) {
+			if (phoneNumber.empty() == true) {
+				return false;
+			}
 			return true;
 		}
 
@@ -73,7 +76,7 @@ public:
 
 		std::shared_ptr<Phone> build() {
 			if (isValidPhoneNumber(this->m_phoneNumber) == false) {
-				throw new std::exception("name should be not null, not blank and <= 100 chars long");//IllegalArgumentException("name should be not null, not blank and <= 100 chars long");
+				throw new std::exception("Phone number cannot be empty");//IllegalArgumentException("name should be not null, not blank and <= 100 chars long");
 			}
 			if (isValidCountryCode(this->m_countryCode) == false) {
 				throw new std::exception("age should be >= 20 and <= 50");

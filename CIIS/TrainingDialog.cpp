@@ -23,21 +23,26 @@ static std::filesystem::path GetTrainingDirectory() {
 void TrainingDialog::OnTrain(wxCommandEvent& event) {
 	//wxLogMessage("Start training!");
 	// TODO: Get Customer information before training
-	std::shared_ptr<Phone> phone = Phone::getBuilder()
-		->setPhoneNumber(m_phone->GetValue().ToStdString())
-		->setCountryCode("91")
-		->build();
-	
-	m_customer->setCustomerIdentification(m_customerID);
-	m_customer->setName(m_customerName->GetValue().ToStdString());
-	m_customer->setPhoneNumber(*phone);
 
-	CustomerDatabase::InsertNewCustomer(m_customer);
-	PhoneDatabase::InsertNewPhone(phone);
-	
-	m_trainerThread = new Trainer(this, m_customer, GetTrainingDirectory());
-	m_trainerThread->setTrainingFlag(true);
-	StartTrainerThread();
+	try {
+		std::shared_ptr<Phone> phone = Phone::getBuilder()
+			->setPhoneNumber(m_phone->GetValue().ToStdString())
+			->setCountryCode("91")
+			->build();
+
+		m_customer->setCustomerIdentification(m_customerID);
+		m_customer->setName(m_customerName->GetValue().ToStdString());
+		m_customer->setPhoneNumber(*phone);
+		m_trainerThread = new Trainer(this, m_videoCapture, m_customer, GetTrainingDirectory());
+		m_trainerThread->setTrainingFlag(true);
+		StartTrainerThread();
+		CustomerDatabase::InsertNewCustomer(m_customer);
+		PhoneDatabase::InsertNewPhone(m_customer);
+	}
+	catch (std::exception& ex) {
+		wxLogError("ERROR: %s", ex.what());
+		return;
+	}
 	
 	//m_trainerThread->train();
 	//Connect(wxID_ANY, wxEVT_IDLE, wxIdleEventHandler(CIISFrame::onIdle));
@@ -61,11 +66,13 @@ bool TrainingDialog::StartTrainerThread() {
 	return true;
 }
 
-TrainingDialog::TrainingDialog(wxWindow* parent, wxWindowID id, const wxString& title, const wxPoint& pos, const wxSize& size, long style) : wxDialog(parent, id, title, pos, size, wxDEFAULT_DIALOG_STYLE) {
+TrainingDialog::TrainingDialog(wxWindow* parent, cv::VideoCapture* videoCapture, wxWindowID id, const wxString& title, const wxPoint& pos, const wxSize& size, long style) : wxDialog(parent, id, title, pos, size, wxDEFAULT_DIALOG_STYLE) {
 	this->SetSizeHints(wxDefaultSize, wxDefaultSize);
 
 	wxBoxSizer* customerGrid;
 	customerGrid = new wxBoxSizer(wxVERTICAL);
+
+	m_videoCapture = videoCapture;
 
 	//EVT_CLOSE(func.target())
 
@@ -86,7 +93,7 @@ TrainingDialog::TrainingDialog(wxWindow* parent, wxWindowID id, const wxString& 
 		->setCustomerIdentification(CustomerDatabase::CreateCustomerIdentity(path.generic_string()))
 		->setName("New Customer")
 		->build());
-	m_trainerThread = new Trainer(this, m_customer, GetTrainingDirectory());
+	m_trainerThread = new Trainer(this, m_videoCapture, m_customer, GetTrainingDirectory());
 	StartTrainerThread();
 	//m_customerID.assign(m_trainerThread->getCustomer()->getCustomerIdentification());
 	m_customerID = m_customer->getCustomerIdentification();
@@ -152,8 +159,14 @@ void TrainingDialog::OnCameraFrameTrainer(wxThreadEvent& evt) {
 		delete frame;
 		return;
 	}*/
-
 	long     timeConvert = 0;
+	if (frame->isBitmap == true && frame->bitmap.IsOk()) {
+		m_bitmapPanelTrainer->SetBitmap(frame->bitmap, frame->timeGet, timeConvert);
+		delete frame;
+		return;
+	}
+
+	
 	wxBitmap bitmap = MatToBitmap::ConvertMatToBitmap(frame->matBitmap, timeConvert);
 
 	if (bitmap.IsOk())
@@ -169,6 +182,7 @@ void TrainingDialog::DeleteTrainerThread() {
 	if (m_trainerThread)
 	{
 		m_trainerThread->Delete(nullptr, wxTHREAD_WAIT_BLOCK);
+		m_trainerThread = nullptr;
 		//wxDELETE(m_trainerThread);
 	}
 }

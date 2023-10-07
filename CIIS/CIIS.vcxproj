@@ -14,6 +14,7 @@
     <ClInclude Include="CIISFrame.h" />
     <ClInclude Include="CustomerDatabase.h" />
     <ClInclude Include="DatabaseConfiguration.h" />
+    <ClInclude Include="DeviceEnumerator.h" />
     <ClInclude Include="EigenTrainator.h" />
     <ClInclude Include="FisherTrainator.h" />
     <ClInclude Include="IDatabase.h" />
@@ -32,6 +33,7 @@
     <ClCompile Include="BitmapPanel.cpp" />
     <ClCompile Include="CIISApp.cpp" />
     <ClCompile Include="CIISFrame.cpp" />
+    <ClCompile Include="DeviceEnumerator.cpp" />
     <ClCompile Include="EigenTrainator.cpp" />
     <ClCompile Include="FisherTrainator.cpp" />
     <ClCompile Include="MatToBitmap.cpp" />

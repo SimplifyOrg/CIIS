@@ -27,19 +27,24 @@ public:
 		return phoneMap[id];
 	}
 
-	static void InsertNewPhone(const std::shared_ptr<Phone> phone) {
+	static void InsertNewPhone(const std::shared_ptr<Customer> customer) {
 		std::unique_ptr<PostgresDatabase> pDB = std::make_unique<PostgresDatabase>();
 		s_dbConfig config{ "postgres", "localhost", "kislay", "customerdb", "5432" };
 		pDB->connect(config);
+		std::vector<Phone> phones = customer->getPhoneNumbers();
 
-		std::ostringstream s;
-		s << "INSERT INTO customer_schema.phone (countrycode, phonenumber, cid, isprimary) "
-			<< "VALUES ('" << phone->getCountryCode()
-			<< "','" << phone->getPhoneNumber() 
-			<< "','" << phone->getIsPrimary() << "');";
-		std::string command = s.str();
+		for (auto phone : phones) {
+			std::ostringstream s;
+			s << "INSERT INTO customer_schema.phone (countrycode, phonenumber, cid, isprimary) "
+				<< "VALUES ('" << phone.getCountryCode()
+				<< "','" << phone.getPhoneNumber()
+				<< "','" << customer->getCustomerIdentification()
+				<< "','" << std::to_string(phone.getIsPrimary()) << "');";
+			std::string command = s.str();
 
-		pDB->executeCommand(command);
+			pDB->executeCommand(command);
+		}
+		
 	}
 };
 

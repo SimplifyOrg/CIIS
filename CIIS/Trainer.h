@@ -1,6 +1,7 @@
 #pragma once
 #include "ITrainator.h"
 #include <opencv2/core/mat.hpp>
+#include <opencv2/videoio.hpp>
 #include <filesystem>
 #include "wx/wx.h"
 #include "Customer.h"
@@ -19,7 +20,7 @@ public:
 
 	void setTrainingFlag(bool flag) { m_startTraining = flag; }
 
-	Trainer(wxEvtHandler* eventSink, std::shared_ptr<Customer> customer, std::filesystem::path trainingDirectory);
+	Trainer(wxEvtHandler* eventSink, cv::VideoCapture* videoCapture, std::shared_ptr<Customer> customer, std::filesystem::path trainingDirectory);
 
 	// Don't Allow default constructor
 	Trainer() = delete;
@@ -37,6 +38,7 @@ private:
 	std::shared_ptr<Customer> m_customer;
 	cv::Ptr<cv::CascadeClassifier> m_cascade;
 	bool m_startTraining{ false };
+	cv::VideoCapture* m_videoCapture{ nullptr };
 
 private:
 	cv::Mat processImage(cv::Mat inImg);

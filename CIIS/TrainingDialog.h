@@ -9,7 +9,7 @@ class TrainingDialog :
     public wxDialog
 {
 public:
-    TrainingDialog(wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxEmptyString, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize(500, 300), long style = wxDEFAULT_FRAME_STYLE | wxTAB_TRAVERSAL);
+    TrainingDialog(wxWindow* parent, cv::VideoCapture* videoCapture, wxWindowID id = wxID_ANY, const wxString& title = wxEmptyString, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize(500, 300), long style = wxDEFAULT_FRAME_STYLE | wxTAB_TRAVERSAL);
 
     void OnCameraFrameTrainer(wxThreadEvent& evt);
 
@@ -32,5 +32,6 @@ private:
 
     std::string m_customerID;
     std::shared_ptr<Customer> m_customer;
+    cv::VideoCapture* m_videoCapture{ nullptr };
 };
 

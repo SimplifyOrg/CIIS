@@ -7,6 +7,9 @@
 #include <wx/splitter.h>
 #include <wx/dataview.h>
 #include "CustomerDatabase.h"
+#include "PhoneDatabase.h"
+#include "DeviceEnumerator.h"
+#include <wx/splash.h>
 
 // define a custom event type (we don't need a separate declaration here but
 // usually you would use a matching wxDECLARE_EVENT in a header)
@@ -14,6 +17,15 @@
 
 
 CIISFrame::CIISFrame() : wxFrame(nullptr, wxID_ANY, "Customer Identity and Information System") {
+	wxImage::AddHandler(new wxJPEGHandler);
+
+	wxBitmap bitmap;
+
+	bitmap.LoadFile(_T("splash.jpg"), wxBITMAP_TYPE_JPEG);
+
+	wxSplashScreen* scrn = new wxSplashScreen(bitmap, wxSPLASH_CENTRE_ON_SCREEN | wxSPLASH_TIMEOUT, 2500, NULL, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxFRAME_NO_TASKBAR | wxSIMPLE_BORDER | wxSTAY_ON_TOP);
+	scrn->Show();
+	scrn->Update();
 	wxMenu* menuFile = new wxMenu;
 	/*menuFile->Append(ID_Hello, "&Hello...\tCtrl-H", "Help string shown in status bar for this menu item");
 	menuFile->AppendSeparator();*/
@@ -38,21 +50,37 @@ CIISFrame::CIISFrame() : wxFrame(nullptr, wxID_ANY, "Customer Identity and Infor
 	wxBoxSizer* buttonSizer = new wxBoxSizer(wxHORIZONTAL);
 	wxBoxSizer* bottomPanelSizer = new wxBoxSizer(wxHORIZONTAL);
 
+	// Populate list of cameras
+	m_cameraEnumerator = new DeviceEnumerator();
+	std::map<int, Device> devices = m_cameraEnumerator->getVideoDevicesMap();
+	wxArrayString choices; int index = 0;
+	for (auto const& device : devices) {
+		choices.Add(device.second.deviceName);
+		m_cameraIndexMap[index++] = new cv::VideoCapture(device.first);
+		//m_cameraIndexMap[device.second.deviceName] = index++;
+	}
+
+	scrn->Destroy();
+
 	// Add Buttons
 	wxPanel* panel = new wxPanel(this);
 	wxButton* newCustomer = new wxButton(panel, ID_New_Customer, "New Customer"/*, wxPoint(150, 100), wxSize(100, 35)*/);
+	m_chooseCamera = new wxChoice(panel, ID_Camera_Chooser, wxDefaultPosition, wxDefaultSize, choices, 0, wxDefaultValidator, "Connected Cameras");
 	buttonSizer->Add(newCustomer, wxSizerFlags().Proportion(0.2).Expand().Border());
+	buttonSizer->Add(m_chooseCamera, wxSizerFlags().Proportion(0.2).Expand().Border());
+	m_chooseCamera->SetSelection(0);
+	m_camera = 0;
 
 	wxSplitterWindow* bottomPanelSplitter = new wxSplitterWindow(panel, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxSP_BORDER | wxSP_LIVE_UPDATE);
-	wxSplitterWindow* bottomPanelLeftSplitter = new wxSplitterWindow(bottomPanelSplitter, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxSP_BORDER | wxSP_LIVE_UPDATE);
+	//wxSplitterWindow* bottomPanelLeftSplitter = new wxSplitterWindow(bottomPanelSplitter, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxSP_BORDER | wxSP_LIVE_UPDATE);
 	
 	m_bitmapPanelRecognizer = new BitmapPanel(bottomPanelSplitter, ID_Recognizer_panel);
-	bottomPanelLeftSplitter->SetMinimumPaneSize(200);
-	m_customersInShop = new wxListBox(bottomPanelLeftSplitter, wxID_Customers_In_Shop, wxDefaultPosition, wxDefaultSize, 0, NULL, wxLB_SINGLE | wxLB_NEEDED_SB | wxLB_SORT);
+	//bottomPanelLeftSplitter->SetMinimumPaneSize(200);
+	m_customersInShop = new wxListBox(bottomPanelSplitter, wxID_Customers_In_Shop, wxDefaultPosition, wxDefaultSize, 0, NULL, wxLB_SINGLE | wxLB_NEEDED_SB | wxLB_SORT);
 	bottomPanelSplitter->SetMinimumPaneSize(200);
-	wxDataViewCtrl* dataViewCtrl1 = new wxDataViewCtrl(bottomPanelLeftSplitter, wxID_ANY, wxDefaultPosition, wxDefaultSize, 0);
-	bottomPanelLeftSplitter->SplitHorizontally(m_customersInShop, dataViewCtrl1);
-	bottomPanelSplitter->SplitVertically(bottomPanelLeftSplitter, m_bitmapPanelRecognizer, 200);
+	//wxDataViewCtrl* dataViewCtrl1 = new wxDataViewCtrl(bottomPanelLeftSplitter, wxID_ANY, wxDefaultPosition, wxDefaultSize, 0);
+	//bottomPanelLeftSplitter->SplitHorizontally(m_customersInShop, dataViewCtrl1);
+	bottomPanelSplitter->SplitVertically(m_customersInShop, m_bitmapPanelRecognizer, 200);
 	bottomPanelSizer->Add(bottomPanelSplitter, 1, wxEXPAND | wxALL, FromDIP(5));
 	//bottomPanelSizer->Add(customersInShop, 0, wxEXPAND | wxLEFT | wxRIGHT | wxTOP, 5);//wxSizerFlags().Proportion(0.2).Expand().Border());
 	//bottomPanelSizer->Add(m_bitmapPanelRecognizer, 0, wxEXPAND | wxALL, 5);//wxSizerFlags().Proportion(0.2).Expand().Border());
@@ -67,9 +95,14 @@ CIISFrame::CIISFrame() : wxFrame(nullptr, wxID_ANY, "Customer Identity and Infor
 	Bind(wxEVT_BUTTON, &CIISFrame::OnNewCustomer, this, ID_New_Customer);
 	Bind(wxEVT_LISTBOX, &CIISFrame::OnListBoxSelection, this, wxID_Customers_In_Shop);
 	Bind(wxEVT_LISTBOX_DCLICK, &CIISFrame::OnListBoxDoubleClick, this, wxID_Customers_In_Shop);
+	Bind(wxEVT_CHOICE, &CIISFrame::OnCameraChooserSelect, this, ID_Camera_Chooser);
 	/*EVT_CLOSE(CIISFrame::OnClose);
 	m_isShown = true;*/
 	//Bind(wxEVT_BUTTON, &CIISFrame::OnRecognize, this, ID_Recognize);
+}
+
+CIISFrame::~CIISFrame() {
+	DeleteRecognizerThread();
 }
 
 //void CIISFrame::OnClose(wxCloseEvent& event) {
@@ -98,9 +131,18 @@ void CIISFrame::OnCameraFrameRecognition(wxThreadEvent& evt) {
 
 	if (bitmap.IsOk()) {
 		std::vector<wxString> vec;
-		for (wxString customer : frame->customers) {
-			if (wxNOT_FOUND == m_customersInShop->FindString(customer)) {
-				vec.push_back(customer);
+		for (auto customer : frame->customers) {
+			auto str = customer.second->getName();
+			std::vector<std::shared_ptr<Phone>> phones = PhoneDatabase::GetPhoneWithCustomerID(customer.second->getCustomerIdentification());
+			if (phones.size() > 0) {
+				str.append(":");
+			}
+			for (auto phone : phones) {
+				str.append(" ");
+				str.append(phone->getPhoneNumber());
+			}
+			if (wxNOT_FOUND == m_customersInShop->FindString(str)) {
+				vec.push_back(str);
 			}
 		}
 		if (vec.size() > 0) {
@@ -129,8 +171,7 @@ bool CIISFrame::StartRecognizerThread()
 {
 	DeleteRecognizerThread();
 	std::string path("face_data");
-
-	m_recognizerThread = new Recognizer(this, path);
+	m_recognizerThread = new Recognizer(this, m_cameraIndexMap[m_camera].get(), path);
 	if (m_recognizerThread->Run() != wxTHREAD_NO_ERROR)
 	{
 		wxDELETE(m_recognizerThread);
@@ -149,7 +190,7 @@ void CIISFrame::OnRecognize() {
 
 void CIISFrame::OnNewCustomer(wxCommandEvent& event) {
 	DeleteRecognizerThread();
-	TrainingDialog* frame = new TrainingDialog(this);
+	TrainingDialog* frame = new TrainingDialog(this, m_cameraIndexMap[m_camera].get());
 	frame->SetClientSize(800, 600);
 	frame->Center();
 	frame->ShowModal();
@@ -168,6 +209,12 @@ void CIISFrame::OnListBoxDoubleClick(wxCommandEvent& event) {
 	for (auto selection : selections) {
 		m_customersInShop->Delete(selection);
 	}
+}
+
+void CIISFrame::OnCameraChooserSelect(wxCommandEvent& event) {
+	DeleteRecognizerThread();
+	m_camera = m_chooseCamera->GetSelection();
+	StartRecognizerThread();
 }
 
 void CIISFrame::OnClose(wxCloseEvent& event) {
